@@ -25,8 +25,8 @@ def send_message(url, title, goods_number = 0):
     # 추가 details
     details = soup.find_all("span", class_="detail")
     # 추가 img_url
-    for img in soup.find_all("div", class_="img_area"):
-        img_url.append(img.find("img")["src"])
+    # for img in soup.find_all("div", class_="img_area"):
+    #     img_url.append(img.find("img")["src"])
 
     keywords.append(title + " Top 5\n\n")
 
@@ -36,7 +36,14 @@ def send_message(url, title, goods_number = 0):
 
     return u'\n'.join(keywords)
 
-
+# def send_img_url(url,goods_number = 0):
+#     source = urllib.request.urlopen(url).read()
+#     soup = BeautifulSoup(source, "html.parser")
+#     for img in soup.find_all("div", class_="img_area"):
+#         img_url.append(img.find("img")["src"])
+#         msg = {}
+#         msg["image_url"] = str(img_url[i])
+#     return msg
 
 
 def search_def(key, goods_num=0):
