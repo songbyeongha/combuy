@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/combuy.iml" filepath="$PROJECT_DIR$/.idea/combuy.iml" />
+=======
+      <module fileurl="file://$PROJECT_DIR$/.idea/Text.iml" filepath="$PROJECT_DIR$/.idea/Text.iml" />
+>>>>>>> origin/master
     </modules>
   </component>
 </project>
