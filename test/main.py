@@ -4,6 +4,7 @@ import os
 import re
 import urllib.request
 
+
 from recommend import *
 from bs4 import BeautifulSoup
 from slackclient import SlackClient
@@ -12,113 +13,111 @@ from selenium import webdriver
 
 app = Flask(__name__)
 
-slack_token = ""
-slack_client_id = "502761537154.508541799559"
-slack_client_secret = "2885563b20690fc058f0870749163a29"
-slack_verification = "x26eqvj9yBxb6yLThkr90cgp"
+
 sc = SlackClient(slack_token)
 
+pre_ts = 0
 
 
 # 크롤링 함수 구현하기
 def _crawl_naver_keywords(text):
     # 사용자 호출 후 실행되어야 될 것
     # 여기에 함수를 구현해봅시다.
-    text = re.sub(r'<@\S+>', '', text)
-    if "검색 :" in text:
+    result = re.sub(r'<@\S+>', '', text)
+    if "검색 :" in result:
         return "검색 결과를 알려드립니다."
-    elif "추천" in text:
-        if "cpu" in text:
+    elif "추천" in result:
+        if "cpu" in result:
             url = "https://search.shopping.naver.com/search/all.nhn?query=cpu&cat_id=&frm=NVSHATC"
             return send_message(url, "cpu 추천")
 
-        elif "보드" in text:
+        elif "보드" in result:
             url = "https://search.shopping.naver.com/search/all.nhn?query=%EB%A9%94%EC%9D%B8%EB%B3%B4%EB%93%9C&cat_id=&frm=NVSHATC"
             return send_message(url, "메인보드 추천")
 
-        elif "그래픽" in text:
+        elif "그래픽" in result:
             url = "https://search.shopping.naver.com/search/all.nhn?query=%EA%B7%B8%EB%9E%98%ED%94%BD%EC%B9%B4%EB%93%9C&cat_id=&frm=NVSHATC"
             return send_message(url, "그래픽카드 추천")
 
-        elif "ram" in text:
+        elif "ram" in result:
             url = "https://search.shopping.naver.com/search/all.nhn?query=ram&cat_id=&frm=NVSHATC"
             return send_message(url, "ram 추천")
-        elif "ssd" in text:
+        elif "ssd" in result:
             url = "https://search.shopping.naver.com/search/all.nhn?query=ssd"
             return send_message(url, "ssd 추천")
 
-    elif "리뷰" in text:
-        if "많은" in text:
-            if "cpu" in text:
+    elif "리뷰" in result:
+        if "많은" in result:
+            if "cpu" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=cpu&pagingIndex=1&pagingSize=40&viewType=list&sort=review&frm=NVSHATC&query=cpu"
                 return send_message(url, "cpu 리뷰 많은순")
 
-            elif "보드" in text:
+            elif "보드" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=%EB%A9%94%EC%9D%B8%EB%B3%B4%EB%93%9C&pagingIndex=1&pagingSize=40&viewType=list&sort=review&frm=NVSHATC&query=%EB%A9%94%EC%9D%B8%EB%B3%B4%EB%93%9C"
                 return send_message(url, "메인보드 리뷰 많은순")
 
-            elif "그래픽" in text:
+            elif "그래픽" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=%EA%B7%B8%EB%9E%98%ED%94%BD%EC%B9%B4%EB%93%9C&pagingIndex=1&pagingSize=40&viewType=list&sort=review&frm=NVSHATC&query=%EA%B7%B8%EB%9E%98%ED%94%BD%EC%B9%B4%EB%93%9C"
                 return send_message(url, "그래픽카드 리뷰 많은순")
 
-            elif "ram" in text:
+            elif "ram" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=ram&pagingIndex=1&pagingSize=40&viewType=list&sort=review&frm=NVSHTTL&query=ram"
                 return send_message(url, "ram 리뷰 많은순")
 
-            elif "ssd" in text:
+            elif "ssd" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?query=ssd"
                 return send_message(url, "ssd 리뷰 많은순")
-    elif "가격" in text:
-        if "낮은" in text:
-            if "cpu" in text:
+    elif "가격" in result:
+        if "낮은" in result:
+            if "cpu" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=cpu&pagingIndex=1&pagingSize=40&viewType=list&sort=price_asc&frm=NVSHATC&query=cpu"
                 return send_message(url, "cpu 낮은 가격순")
 
-            elif "보드" in text:
+            elif "보드" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=%EB%A9%94%EC%9D%B8%EB%B3%B4%EB%93%9C&pagingIndex=1&pagingSize=40&viewType=list&sort=price_asc&frm=NVSHATC&query=%EB%A9%94%EC%9D%B8%EB%B3%B4%EB%93%9C"
                 return send_message(url, "메인보드 낮은 가격순")
 
-            elif "그래픽" in text:
+            elif "그래픽" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=%EA%B7%B8%EB%9E%98%ED%94%BD%EC%B9%B4%EB%93%9C&pagingIndex=1&pagingSize=40&viewType=list&sort=price_asc&frm=NVSHATC&query=%EA%B7%B8%EB%9E%98%ED%94%BD%EC%B9%B4%EB%93%9CC"
                 return send_message(url, "그래픽카드 낮은 가격순")
 
-            elif "ram" in text:
+            elif "ram" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=ram&pagingIndex=1&pagingSize=40&viewType=list&sort=price_asc&frm=NVSHATC&query=ram"
                 return send_message(url, "ram 낮은 가격순")
 
-            elif "ssd" in text:
+            elif "ssd" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=ssd&pagingIndex=1&pagingSize=40&viewType=list&sort=price_asc&frm=NVSHTTL&query=ssd"
                 return send_message(url, "ssd 낮은 가격순")
 
-        elif "높은" in text:
-            if "cpu" in text:
+        elif "높은" in result:
+            if "cpu" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=cpu&pagingIndex=1&pagingSize=40&viewType=list&sort=price_dsc&frm=NVSHATC&query=cpu"
                 return send_message(url, "cpu 높은 가격순")
 
-            elif "보드" in text:
+            elif "보드" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=%EB%A9%94%EC%9D%B8%EB%B3%B4%EB%93%9C&pagingIndex=1&pagingSize=40&viewType=list&sort=price_dsc&frm=NVSHATC&query=%EB%A9%94%EC%9D%B8%EB%B3%B4%EB%93%9CC"
                 return send_message(url, "메인보드 높은 가격")
 
-            elif "그래픽" in text:
+            elif "그래픽" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=%EA%B7%B8%EB%9E%98%ED%94%BD%EC%B9%B4%EB%93%9C&pagingIndex=1&pagingSize=40&viewType=list&sort=price_dsc&frm=NVSHATC&query=%EA%B7%B8%EB%9E%98%ED%94%BD%EC%B9%B4%EB%93%9C"
                 return send_message(url, "그래픽카드 높은 가격")
 
-            elif "ram" in text:
+            elif "ram" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=ram&pagingIndex=1&pagingSize=40&viewType=list&sort=price_dsc&frm=NVSHATC&query=ram"
                 return send_message(url, "ram 높은 가격")
 
-            elif "ssd" in text:
+            elif "ssd" in result:
                 url = "https://search.shopping.naver.com/search/all.nhn?origQuery=ssd&pagingIndex=1&pagingSize=40&viewType=list&sort=price_dsc&frm=NVSHTTL&query=ssd"
                 return send_message(url, "ssd 높은 가격")
-    elif "안녕" in text:
+    elif "안녕" in result:
         return u"안녕하세요!! 컴퓨터 부품을 알려드립니다.^^"
     else:
         return u"명령어가 없어요!!"
 
 def _search_event(text):
-    if "검색 :" in text:
-        text = re.sub(r'<@\S+>', '', text)
-        return search_def(text)
+    result = re.sub(r'<@\S+>', '', text)
+    if "검색 :" in result:
+        return search_def(result)
 
 # 이벤트 핸들하는 함수
 def _event_handler(event_type, slack_event):
@@ -149,7 +148,7 @@ def _event_handler(event_type, slack_event):
 @app.route("/listening", methods=["GET", "POST"])
 def hears():
     slack_event = json.loads(request.data)
-
+    global pre_ts
     if "challenge" in slack_event:
         return make_response(slack_event["challenge"], 200, {"content_type":
                                                                  "application/json"
@@ -161,7 +160,12 @@ def hears():
 
     if "event" in slack_event:
         event_type = slack_event["event"]["type"]
-        return _event_handler(event_type, slack_event)
+        if float(slack_event["event"]["ts"]) <= float(pre_ts):
+            return "No timestamp"
+        else:
+            pre_ts = float(slack_event["event"]["ts"])
+            return _event_handler(event_type, slack_event)
+
 
     # If our bot hears things that are not events we've subscribed to,
     # send a quirky but helpful error response

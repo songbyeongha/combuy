@@ -3,6 +3,7 @@ import json
 import os
 import re
 import urllib.request
+import time
 
 from selenium import webdriver
 from bs4 import BeautifulSoup
@@ -40,8 +41,6 @@ def search_def(key):
     searchButton.click()
     source = driver.page_source
     soup = BeautifulSoup(source, "html.parser")
-
-    keywords = []
     titles = []
     title_url = []
     img_url = []
@@ -49,13 +48,13 @@ def search_def(key):
         titles.append(tit.find("a", class_="tit"))
         title_url.append(tit.find("a", class_="tit")["href"])
     prices = soup.find_all("span", class_="num _price_reload")
+    # time.sleep(2)
     for img in soup.find_all("div", class_="img_area"):
-        img_url.append(img.find("img", class_="_productLazyImg")["src"])
+        img_url.append(img.find("img")["src"])
     # 추가 details
     details = soup.find_all("span", class_="detail")
-    keywords.append("검색 결과 -> ")
-    keywords.append("상품명 : <" + str(title_url[0]) + "|" + titles[0].get_text().strip() + ">\n 가격 : " + prices[0].get_text().strip() + "원\n 상품 상세 : \n     " + details[0].get_text().strip().replace("|", ",\n     ").replace(":", "->") + "\n    ")
-
+    keywords = "검색 결과1 -> \n상품명 : <" + str(title_url[0]) + "|" + titles[0].get_text().strip() + ">\n 가격 : " + prices[0].get_text().strip() + "원\n 상품 상세 : \n" + details[0].get_text().replace("|", ",").replace(":", "->").strip() + "\n"
+    driver.close()
     msg = {}
     msg["text"] = keywords
     msg["image_url"] = img_url[0]
