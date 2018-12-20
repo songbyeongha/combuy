@@ -12,7 +12,7 @@ from selenium import webdriver
 
 app = Flask(__name__)
 
-slack_token = "xoxb-502761537154-506755285248-HshbhrKuDCuIiMWmq7FzREJq"
+slack_token = ""
 slack_client_id = "502761537154.508541799559"
 slack_client_secret = "2885563b20690fc058f0870749163a29"
 slack_verification = "x26eqvj9yBxb6yLThkr90cgp"
