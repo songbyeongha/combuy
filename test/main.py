@@ -139,12 +139,12 @@ def _event_handler(event_type, slack_event):
             )
         else:
             keywords = _crawl_naver_keywords(text)
-
+            # img_url_num = send_img_url
             sc.api_call(
                 "chat.postMessage",
                 channel=channel,
                 text=keywords,
-                # attachments=json.dumps([searchs])
+                # attachments=json.dumps([img_url_num])
             )
 
 
